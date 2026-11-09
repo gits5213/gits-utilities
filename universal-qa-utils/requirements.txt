@@ -1,3 +1,5 @@
+# Convenience pins for a development environment.
+# pyproject.toml is the package metadata. It also defines the robot and dev extras.
 pandas>=2.2.2
 openpyxl>=3.1.5
 pytest>=8.2.0

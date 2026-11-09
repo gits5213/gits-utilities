@@ -140,7 +140,7 @@ def expected_document() -> dict[str, object]:
             {"key": "003", "field_a": "Status", "reason": "unmapped", "value_a": "S0099", "value_b": "S0099"},
         ],
         "schema_version": "1",
-        "library_version": "0.1.0",
+        "library_version": "0.1.1",
         "result_keys": list(RESULT_KEYS),
         "detail_keys": list(DETAIL_KEYS),
     }

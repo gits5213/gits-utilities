@@ -1,0 +1,32 @@
+name: Release validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate release artifacts without publishing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build and run Twine check
+        working-directory: universal-qa-utils
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+          python -m build
+          python -m twine check dist/*
+          echo "Upload is not part of this workflow."
+          echo "After approval, run Twine from a trusted workstation and type the production token only at the hidden prompt."

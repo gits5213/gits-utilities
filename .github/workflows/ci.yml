@@ -1,0 +1,162 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - development/v0.1.1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            universal-qa-utils/pyproject.toml
+            universal-qa-utils/requirements.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: universal-qa-utils/package-lock.json
+
+      - name: Install PowerShell
+        run: |
+          . /etc/os-release
+          wget -q "https://packages.microsoft.com/config/ubuntu/${VERSION_ID}/packages-microsoft-prod.deb" -O packages-microsoft-prod.deb
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell
+          pwsh -NoProfile -Command '$PSVersionTable.PSVersion'
+
+      - name: Install the package and test tools
+        working-directory: universal-qa-utils
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install the Playwright test runner
+        working-directory: universal-qa-utils
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        run: npm ci
+
+      - name: Run pytest, Robot Framework, and adapter tests
+        working-directory: universal-qa-utils
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        run: python -P -m pytest tests integration_lab -q
+
+  package:
+    name: package metadata and wheel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build and validate distributions
+        working-directory: universal-qa-utils
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+          python -m build
+          python -m twine check dist/*
+
+      - name: Inspect wheel metadata and contents
+        working-directory: universal-qa-utils
+        run: |
+          python - <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          wheels = sorted(Path("dist").glob("universal_qa_utils-*.whl"))
+          if len(wheels) != 1:
+              raise SystemExit(f"Expected one wheel, found {wheels}")
+          wheel = wheels[0]
+          with zipfile.ZipFile(wheel) as archive:
+              names = archive.namelist()
+              metadata_name = next(name for name in names if name.endswith(".dist-info/METADATA"))
+              metadata = archive.read(metadata_name).decode()
+          forbidden = [
+              name
+              for name in names
+              if name.startswith(("adapters/", "tests/", "integration_lab/", "node_modules/"))
+              or ".env" in name
+              or name.endswith((".pyc", ".pem", ".key"))
+          ]
+          if forbidden:
+              raise SystemExit(f"Wheel contains files that must stay out of the package: {forbidden}")
+          required = (
+              "Name: universal-qa-utils",
+              "Version: 0.1.1",
+              "License-Expression: MIT",
+              "Requires-Python: >=3.11",
+              "Requires-Dist: pandas>=2.2.2",
+              "Requires-Dist: openpyxl>=3.1.5",
+          )
+          missing = [line for line in required if line not in metadata]
+          if missing:
+              raise SystemExit(f"Wheel metadata is missing {missing}")
+          if "universal_utils/robot/ReconciliationLibrary.py" not in names:
+              raise SystemExit("Robot library is missing from the wheel")
+          if not any(name.endswith("licenses/LICENSE") for name in names):
+              raise SystemExit("MIT license file is missing from the wheel")
+          print(wheel.name)
+          PY
+
+      - name: Smoke-test the CLI and Robot library from the wheel
+        working-directory: universal-qa-utils
+        run: |
+          python -m venv "${RUNNER_TEMP}/wheel-smoke"
+          "${RUNNER_TEMP}/wheel-smoke/bin/python" -m pip install --upgrade pip
+          wheel="$(echo dist/universal_qa_utils-*.whl)"
+          "${RUNNER_TEMP}/wheel-smoke/bin/python" -m pip install "${wheel}"
+          "${RUNNER_TEMP}/wheel-smoke/bin/python" -m pip check
+          "${RUNNER_TEMP}/wheel-smoke/bin/qa-utils" --help
+          "${RUNNER_TEMP}/wheel-smoke/bin/universal-qa-utils" --help
+          "${RUNNER_TEMP}/wheel-smoke/bin/python" -m pip install "${wheel}[robot]"
+          "${RUNNER_TEMP}/wheel-smoke/bin/python" -m robot.libdoc universal_utils.robot.ReconciliationLibrary list
+
+  tosca-gap:
+    name: Windows Tosca requirement
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record that Tosca Commander is not executed
+        run: |
+          {
+            echo "### Windows Tosca Commander"
+            echo "Status: PENDING."
+            echo "This job does not install Tosca and is not a validation pass."
+            echo "The host plan is universal-qa-utils/docs/tosca-windows-validation.md."
+          } >> "$GITHUB_STEP_SUMMARY"

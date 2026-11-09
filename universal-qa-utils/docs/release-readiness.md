@@ -1,8 +1,8 @@
 # Release readiness — universal-qa-utils 0.1.0
 
-Recommendation: **GO FOR TESTPYPI UPLOAD APPROVAL**. The wheel and sdist were rebuilt from commit `ac4a3aa`, and Twine validation passed. Windows Tosca Commander remains pending. Do not upload until that approval is given.
+Recommendation: **PASS**. Version `0.1.0` is on TestPyPI, and a fresh environment installed the published wheel after its SHA-256 matched the approved checksum. Windows Tosca Commander remains pending. Production PyPI was not used.
 
-Nothing was uploaded, tagged, or pushed. Commit `ac4a3aa` is local only. Local commits have not been pushed.
+This verification did not upload another package, create a tag, or push.
 
 Copyright holder: Global iTech Solutions Inc. Copyright year: 2026. License: MIT.
 
@@ -20,9 +20,37 @@ Copyright holder: Global iTech Solutions Inc. Copyright year: 2026. License: MIT
 
 `36cf794` is still a local object. Its tree is identical to `80e31fb2066665a10ba30fc6a12041f1a646461e`. The README placeholder is absent from HEAD. The artifacts below were rebuilt from that committed source. Version `0.1.0` is unchanged.
 
-## TestPyPI and PyPI name check
+## TestPyPI publication
 
-Read-only checks on 8 November 2026, repeated on 9 November 2026. No account was created and nothing was uploaded. The 9 November JSON and simple-index checks are still HTTP 404.
+On 9 November 2026, `https://test.pypi.org/pypi/universal-qa-utils/0.1.0/json` returned HTTP 200.
+
+| File | Bytes | SHA-256 | Yanked |
+| --- | --- | --- | --- |
+| `universal_qa_utils-0.1.0-py3-none-any.whl` | 35400 | `04c30c5fc89b0965dbcb6cf0603dc9de4814c8b3a4317951d8c9efb48eef6d90` | no |
+| `universal_qa_utils-0.1.0.tar.gz` | 43872 | `052a42c7ed45956eea76e3eb893354fc72cb91533b0a79df21a571bd9b7d4ee8` | no |
+
+Metadata: name `universal-qa-utils`, version `0.1.0`, license `MIT`, requires Python `>=3.11`. Production PyPI was not checked again for publication and was not used as the package index.
+
+## Post-upload verification
+
+A new Python 3.11.0 virtual environment was created at `/tmp/uq-testpypi-post-010`, outside the repository. The wheel was downloaded with `--index-url https://test.pypi.org/simple/ --no-deps`. Its SHA-256 matched `04c30c5fc89b0965dbcb6cf0603dc9de4814c8b3a4317951d8c9efb48eef6d90`, so installation continued. pandas and openpyxl were resolved from PyPI by installing that local file.
+
+| Check | Result |
+| --- | --- |
+| `pip check` after install | PASS, exit 0 |
+| Installed version and location | `0.1.0` from `/tmp/uq-testpypi-post-010/lib/python3.11/site-packages` |
+| `qa-utils --help` | PASS, exit 0 |
+| CAM/MDG strict | PASS, exit 0; `passed=true`, `matched=2`, `mismatched=0`, `exceptions=0`; report file exists |
+| Ledger strict business failure | PASS, exit 2, `passed=false` |
+| Ledger defer | PASS, exit 0, `passed=false` |
+| Missing workbook | PASS, exit 1, `status=technical_failure`, `DataReadError` |
+| Robot extra and `robot.libdoc` | PASS. Keywords: Compare Csv Files, Compare Excel Files, Get Reconciliation Summary, Verify Reconciliation Passed |
+| `examples/robot_example.robot` | PASS, `2 tests, 2 passed, 0 failed`, exit 0 |
+| Windows Tosca Commander | PENDING |
+
+## Earlier name check
+
+Read-only checks on 8 November 2026, and again on 9 November 2026 before publication, returned HTTP 404. Those results are historical.
 
 | Endpoint | Result |
 | --- | --- |
@@ -33,7 +61,7 @@ Read-only checks on 8 November 2026, repeated on 9 November 2026. No account was
 | `https://test.pypi.org/project/universal-qa-utils/` | HTTP 200, HTML title `Client Challenge`. The body does not contain the project name |
 | `https://pypi.org/project/universal-qa-utils/` | HTTP 200, same challenge page |
 
-Version `0.1.0` is not published on either index. No current owner was returned. A 404 does not reserve the name. If an upload is later rejected because another account registered `universal-qa-utils`, a different distribution name is required. A version bump does not grant ownership of a name this project does not own.
+Version `0.1.0` is now published on TestPyPI. It was not published on production PyPI by this verification.
 
 ## Gates
 

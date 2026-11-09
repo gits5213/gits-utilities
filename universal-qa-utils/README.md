@@ -244,3 +244,5 @@ See [LICENSE](LICENSE).
 - A numeric CLI sheet argument is a zero-based index. A sheet whose name is numeric should be given as a string in the JSON config.
 - Tosca integration stops at the process boundary. The installed Tosca environment has to supply the approved way to run the command. Windows Tosca Commander execution has not been validated.
 - Playwright and the Tosca PowerShell script are repository adapters. They are not files inside the wheel. The Robot library is `universal_utils.robot` and is inside the wheel.
+
+==UPDATE==

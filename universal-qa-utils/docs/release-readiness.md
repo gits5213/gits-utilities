@@ -1,8 +1,8 @@
 # Release readiness — universal-qa-utils 0.1.0
 
-Recommendation: **READY FOR TESTPYPI UPLOAD APPROVAL**. The corrected wheel and sdist pass build, long-description, clean-install, and regression checks. Windows Tosca Commander remains pending. Do not upload until that approval is given.
+Recommendation: **GO FOR TESTPYPI UPLOAD APPROVAL**. The wheel and sdist were rebuilt from commit `ac4a3aa`, and Twine validation passed. Windows Tosca Commander remains pending. Do not upload until that approval is given.
 
-This preparation run did not upload to TestPyPI or PyPI, and it did not create a commit, tag, or push.
+Nothing was uploaded, tagged, or pushed. Commit `ac4a3aa` is local only. Local commits have not been pushed.
 
 Copyright holder: Global iTech Solutions Inc. Copyright year: 2026. License: MIT.
 
@@ -13,16 +13,16 @@ Copyright holder: Global iTech Solutions Inc. Copyright year: 2026. License: MIT
 | Repository root | `/Users/mdzaman/Downloads/toGithub/gits-utilities` |
 | Package directory | `universal-qa-utils/` |
 | Branch | `master` |
-| HEAD | `4b1d9c351ba235c7b3b39e054f8a40d3bced2f59` (`update`) |
+| Package source | `ac4a3aadab63280b17267f303c069113141f94df` (`docs(release): finalize v0.1.0 TestPyPI preparation`) |
 | Remote | `git@github.com:gits5213/gits-utilities.git` |
-| Remote `master` | same commit as HEAD, read with `git ls-remote` |
+| Remote `master` | `4b1d9c351ba235c7b3b39e054f8a40d3bced2f59`; local commits have not been pushed |
 | Stated release commit | `36cf7948efc308fc82fb268325b494f125f60f2d` |
 
-`36cf794` is still a local object. Its tree is identical to `80e31fb2066665a10ba30fc6a12041f1a646461e` (`chore(release): prepare universal-qa-utils v0.1.0`). HEAD adds one unintended README placeholder. That placeholder is removed in the working tree, and the artifacts below were rebuilt from the corrected README. Version `0.1.0` is unchanged.
+`36cf794` is still a local object. Its tree is identical to `80e31fb2066665a10ba30fc6a12041f1a646461e`. The README placeholder is absent from HEAD. The artifacts below were rebuilt from that committed source. Version `0.1.0` is unchanged.
 
 ## TestPyPI and PyPI name check
 
-Read-only checks on 8 November 2026. No account was created and nothing was uploaded.
+Read-only checks on 8 November 2026, repeated on 9 November 2026. No account was created and nothing was uploaded. The 9 November JSON and simple-index checks are still HTTP 404.
 
 | Endpoint | Result |
 | --- | --- |
@@ -61,12 +61,12 @@ Version `0.1.0` is not published on either index. No current owner was returned.
 
 ## Artifacts
 
-The build that still contained the README placeholder was moved to `.tmp/dist-with-placeholder/` and was not reused. Those hashes were `dcd5560fb3f63e50bbbdd65784a110a49150a51e1558d345f33a706d8ec44041` and `e5f6253f4743d9b413190a72bf036b5ade00a3a65d359d14e3a44afc5ac3178f`.
+Rebuilt from `ac4a3aa` on 9 November 2026 with `.release-venv` `python -m build`. The previous artifacts were moved to `.tmp/dist-before-ac4a3aa/` and were not reused. `twine check` passed for both files.
 
 | File | Bytes | SHA-256 |
 | --- | --- | --- |
-| `dist/universal_qa_utils-0.1.0-py3-none-any.whl` | 35400 | `b326075ad856b0d46c7f801620870fa41cd646c45fa8c23bc40477da449760b4` |
-| `dist/universal_qa_utils-0.1.0.tar.gz` | 43866 | `03bc7645e2cde5b6896428ec1050a3f0e63816bca5d75e9be15812d2897eb6a9` |
+| `dist/universal_qa_utils-0.1.0-py3-none-any.whl` | 35400 | `04c30c5fc89b0965dbcb6cf0603dc9de4814c8b3a4317951d8c9efb48eef6d90` |
+| `dist/universal_qa_utils-0.1.0.tar.gz` | 43872 | `052a42c7ed45956eea76e3eb893354fc72cb91533b0a79df21a571bd9b7d4ee8` |
 
 Wheel metadata: `Name: universal-qa-utils`, `Version: 0.1.0`, `License-Expression: MIT`, `License-File: LICENSE`, `Requires-Python: >=3.11`, `Description-Content-Type: text/markdown`. Normalized name: `universal-qa-utils`. Filename form: `universal_qa_utils`.
 
@@ -89,30 +89,38 @@ TestPyPI does not host pandas or openpyxl. Do not use TestPyPI as the only index
 
 Combining `--index-url https://test.pypi.org/simple/` with `--extra-index-url https://pypi.org/simple/` merges both indexes. Pip can then select a higher version of a dependency name from TestPyPI, including a package someone else published under a trusted name such as `pandas`. That is a dependency-confusion risk.
 
-Safer post-upload install, after the artifact hash is compared with the table above:
+Safer post-upload install in a fresh environment. Compare the downloaded wheel hash with the table above before installing it:
 
 ```bash
-python -m pip download universal-qa-utils==0.1.0 \
+python3 -m venv /tmp/uq-testpypi-verify
+/tmp/uq-testpypi-verify/bin/python -m pip install --upgrade pip
+/tmp/uq-testpypi-verify/bin/python -m pip download universal-qa-utils==0.1.0 \
   --index-url https://test.pypi.org/simple/ \
   --no-deps \
   -d /tmp/uq-testpypi-dl
-python -m pip install /tmp/uq-testpypi-dl/universal_qa_utils-0.1.0-py3-none-any.whl
-python -m pip check
-qa-utils --help
+shasum -a 256 /tmp/uq-testpypi-dl/universal_qa_utils-0.1.0-py3-none-any.whl
+/tmp/uq-testpypi-verify/bin/python -m pip install /tmp/uq-testpypi-dl/universal_qa_utils-0.1.0-py3-none-any.whl
+/tmp/uq-testpypi-verify/bin/python -m pip check
+cd /tmp
+/tmp/uq-testpypi-verify/bin/python -P -c "import inspect, universal_utils; print(universal_utils.__version__); print(inspect.getfile(universal_utils))"
+/tmp/uq-testpypi-verify/bin/qa-utils --help
 ```
 
 The download uses TestPyPI only for this project. The local wheel install resolves pandas and openpyxl from PyPI. Do not install an unverified third-party upload that happens to use this name.
 
 ## Upload authentication
 
-Preferred: TestPyPI Trusted Publishing. On `https://test.pypi.org` add a pending publisher for owner `gits5213`, repository `gits-utilities`, and a workflow that has not been created yet. A pending publisher can create the new project. A GitHub Actions workflow would need `id-token: write` and `https://test.pypi.org/legacy/`. No workflow was added.
+Trusted Publishing is not configured. The repository has no GitHub Actions workflow and no committed `.pypirc`.
 
-If a later manual upload is approved, create the token in the TestPyPI account UI. The first manual upload of a new project needs an account-scoped token. After the project exists, replace it with a project-scoped token. Keep the token in the operator's keyring or a mode-`600` `~/.pypirc` outside the repository. Do not put it in a command argument, shell history, repository file, or committed `.pypirc`. Do not disable TLS verification.
+For an approved manual upload, create the token in the TestPyPI account UI. The first upload of a new project needs an account-scoped token. After the project exists, replace it with a project-scoped token. Twine 7.0.0 is installed in `.release-venv`. Run the command below and let Twine prompt. At the prompt, the username is `__token__` and the password is the token typed into the hidden prompt. Do not pass the token with `-p`, an environment assignment in the shell command, a repository file, or shell history. Do not disable TLS verification.
 
 **DO NOT EXECUTE — REQUIRES APPROVAL**
 
 ```bash
-python -m twine upload --repository testpypi dist/*
+./.release-venv/bin/python -m twine upload \
+  --repository-url https://test.pypi.org/legacy/ \
+  dist/universal_qa_utils-0.1.0-py3-none-any.whl \
+  dist/universal_qa_utils-0.1.0.tar.gz
 ```
 
 ## Known limitations

@@ -9,7 +9,7 @@ from typing import Any
 
 from universal_utils.exceptions import ValidationError
 
-LIBRARY_VERSION = "0.1.1"
+LIBRARY_VERSION = "0.2.0"
 SCHEMA_VERSION = "1"
 
 DETAIL_KEYS: tuple[str, ...] = (

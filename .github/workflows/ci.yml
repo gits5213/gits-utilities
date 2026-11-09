@@ -151,7 +151,7 @@ jobs:
               raise SystemExit(f"Wheel contains files that must stay out of the package: {forbidden}")
           required = (
               "Name: universal-qa-utils",
-              "Version: 0.1.1",
+              "Version: 0.2.0",
               "License-Expression: MIT",
               "Requires-Python: >=3.11",
               "Requires-Dist: pandas>=2.2.2",

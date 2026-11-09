@@ -8,13 +8,13 @@ The package under test is the installed distribution, not a checkout of this fol
 python -m pip install "universal-qa-utils==0.1.0"
 ```
 
-To validate a locally built wheel instead, install that file. Version 0.1.1 is not on PyPI:
+To validate a locally built wheel instead, install that file. Release candidate 0.2.0 is not on PyPI:
 
 ```text
 python -m pip install C:\qa-utils\dist\universal_qa_utils-<version>-py3-none-any.whl
 ```
 
-The Windows plan for 0.1.1 is [tosca-windows-validation.md](tosca-windows-validation.md). That plan has not been executed.
+The Windows plan for 0.2.0 is [tosca-windows-validation.md](tosca-windows-validation.md). That plan has not been executed.
 
 Generate the shared fixture on a machine that has this repository, then copy that directory to the Tosca host:
 

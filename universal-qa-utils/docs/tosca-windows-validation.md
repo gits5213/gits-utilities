@@ -1,10 +1,10 @@
-# Windows Tosca Commander validation plan — 0.1.1
+# Windows Tosca Commander validation plan — 0.2.0
 
 Status: **PENDING**. This document is a plan. It is not evidence that Tosca Commander has run.
 
 No result in this repository was produced by Windows Tosca Commander. A passing PowerShell wrapper test, on macOS or in CI, is a process-boundary check only. Do not record Tosca validation as passed until the evidence list at the end comes from the Tosca host.
 
-The command contract is [tosca-execution.md](tosca-execution.md). This plan adds the host prerequisites and the evidence required for version 0.1.1.
+The command contract is [tosca-execution.md](tosca-execution.md). This plan adds the host prerequisites and the evidence required for release candidate 0.2.0. Windows Tosca Commander execution remains pending.
 
 ## Prerequisites
 
@@ -30,10 +30,10 @@ Install the version under test. Production 0.1.0:
 C:\qa-utils\venv\Scripts\python.exe -m pip install "universal-qa-utils==0.1.0"
 ```
 
-Version 0.1.1, until it is published, from a wheel built on the approved commit:
+Release candidate 0.2.0, until it is published, from a wheel built on the approved commit:
 
 ```text
-C:\qa-utils\venv\Scripts\python.exe -m pip install C:\qa-utils\dist\universal_qa_utils-0.1.1-py3-none-any.whl
+C:\qa-utils\venv\Scripts\python.exe -m pip install C:\qa-utils\dist\universal_qa_utils-0.2.0-py3-none-any.whl
 C:\qa-utils\venv\Scripts\python.exe -m pip check
 C:\qa-utils\venv\Scripts\qa-utils.exe --help
 ```

@@ -1,6 +1,6 @@
 # Release readiness — universal-qa-utils 0.1.0
 
-**Update, 9 November 2026.** Version 0.1.0 is on production PyPI at https://pypi.org/project/universal-qa-utils/0.1.0/ and is tagged `v0.1.0` at `cd1e74cc3a07727059d60fa088f95b109a371d76`. The wheel SHA-256 remains `04c30c5fc89b0965dbcb6cf0603dc9de4814c8b3a4317951d8c9efb48eef6d90`. Windows Tosca Commander remains pending. The sections below are the historical TestPyPI verification record. Development of 0.1.1 is on `development/v0.1.1` and has not been published. Its checklist is [v0.1.1-release-checklist.md](v0.1.1-release-checklist.md).
+**Update, 9 November 2026.** Version 0.1.0 is on production PyPI at https://pypi.org/project/universal-qa-utils/0.1.0/ and is tagged `v0.1.0` at `cd1e74cc3a07727059d60fa088f95b109a371d76`. The wheel SHA-256 remains `04c30c5fc89b0965dbcb6cf0603dc9de4814c8b3a4317951d8c9efb48eef6d90`. Windows Tosca Commander remains pending. The sections below are the historical TestPyPI verification record. Release candidate 0.2.0 is prepared locally and has not been published. The 0.1.1 maintenance checklist remains [v0.1.1-release-checklist.md](v0.1.1-release-checklist.md).
 
 Recommendation: **PASS** for the 0.1.0 TestPyPI verification recorded below. A fresh environment installed the published wheel after its SHA-256 matched the approved checksum. Windows Tosca Commander remains pending.
 

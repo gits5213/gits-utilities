@@ -16,16 +16,16 @@ python -m pip install "universal-qa-utils==0.1.0"
 
 Project page: https://pypi.org/project/universal-qa-utils/0.1.0/
 
-Version 0.1.1 is in development on `development/v0.1.1` and is not on PyPI. Install a wheel built from this branch, including its dependencies, with:
+Version 0.2.0 is the release candidate. It is not on PyPI. Install a wheel built from this branch, including its dependencies, with:
 
 ```bash
-python -m pip install dist/universal_qa_utils-0.1.1-py3-none-any.whl
+python -m pip install dist/universal_qa_utils-0.2.0-py3-none-any.whl
 ```
 
 Robot Framework is optional. It is not required for the comparison engine or the command-line interface:
 
 ```bash
-python -m pip install "dist/universal_qa_utils-0.1.1-py3-none-any.whl[robot]"
+python -m pip install "dist/universal_qa_utils-0.2.0-py3-none-any.whl[robot]"
 ```
 
 Another project can import the installed package without copying these files:

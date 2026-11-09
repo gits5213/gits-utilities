@@ -2,9 +2,9 @@
 
 All notable changes to `universal-qa-utils` are recorded here. The package version and `LIBRARY_VERSION` move together. Reconciliation behavior, the command-line contract, and the Robot Framework keywords are unchanged unless a release says otherwise.
 
-## 0.2.0 — unreleased
+## 0.2.0 — release candidate
 
-openpyxl-based workbook comparison, implemented on `feature/excel-compare-0.2.0`. The package version in this working tree remains `0.1.1` so the in-progress maintenance metadata is unchanged. This feature has not been published.
+openpyxl-based workbook comparison. The package version and `LIBRARY_VERSION` are `0.2.0`. This release candidate has not been published and has no Git tag. Version 0.1.1 was not published separately; its maintenance changes are included here.
 
 ### Added
 
@@ -14,9 +14,9 @@ openpyxl-based workbook comparison, implemented on `feature/excel-compare-0.2.0`
 - Formula text, formatting fingerprints, worksheet selection, image byte hashes, and a difference limit are optional.
 - Results state that formula calculation, charts, shapes, and password decryption are not performed.
 
-## 0.1.1 — unreleased
+## 0.1.1 — not published
 
-Maintenance release prepared on `development/v0.1.1`. It has not been published to PyPI and has no Git tag.
+Maintenance prepared on `development/v0.1.1` and included in 0.2.0. It was not published to PyPI and has no Git tag.
 
 ### Added
 

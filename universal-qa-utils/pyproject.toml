@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "universal-qa-utils"
-version = "0.1.0"
+version = "0.1.1"
 description = "Parameter-driven reconciliation utilities for Python test automation."
 readme = "README.md"
 license = "MIT"
@@ -15,6 +15,12 @@ dependencies = [
     "openpyxl>=3.1.5",
 ]
 
+[project.urls]
+Homepage = "https://github.com/gits5213/gits-utilities"
+Source = "https://github.com/gits5213/gits-utilities/tree/master/universal-qa-utils"
+Issues = "https://github.com/gits5213/gits-utilities/issues"
+Documentation = "https://github.com/gits5213/gits-utilities/tree/master/universal-qa-utils/docs"
+
 [project.optional-dependencies]
 dev = ["pytest>=8.2.0", "robotframework>=7.0", "build>=1.2.2"]
 robot = ["robotframework>=7.0"]
@@ -22,6 +28,7 @@ robot = ["robotframework>=7.0"]
 [project.scripts]
 qa-utils = "universal_utils.cli:main"
 universal-qa-utils = "universal_utils.cli:main"
+qa-excel-compare = "universal_utils.excel_compare.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["universal_utils*"]

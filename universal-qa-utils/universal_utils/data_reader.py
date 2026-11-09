@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import codecs
+import zipfile
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -25,7 +26,7 @@ def read_excel_table(path: str | Path, sheet: str | int) -> DataTable:
         raise DataReadError(f"Excel file not found: {source}")
     try:
         workbook = load_workbook(filename=source, data_only=True, read_only=False)
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, zipfile.BadZipFile) as exc:
         raise DataReadError(f"Unable to read Excel file: {source}") from exc
     try:
         worksheet = _resolve_sheet(workbook, sheet, source)

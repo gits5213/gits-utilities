@@ -1,0 +1,22 @@
+{
+  "source_type": "excel",
+  "source_a": "../demo-output/CAM.xlsx",
+  "source_b": "../demo-output/MDG.xlsx",
+  "sheet_a": "CAM",
+  "sheet_b": "MDG",
+  "key_a": "PCID",
+  "key_b": "ID",
+  "field_mapping": {
+    "PCID Name": "Name",
+    "PCID Description": "Program Description",
+    "Status Code": "Status Description"
+  },
+  "value_mappings": {
+    "Status Code": {
+      "S0011": "Abandoned",
+      "S0023": "Approved"
+    }
+  },
+  "generate_report": true,
+  "output_path": "../demo-output/cam_mdg_report.xlsx"
+}

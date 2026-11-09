@@ -1,0 +1,15 @@
+.venv/
+.tmp/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+examples/demo-output/
+node_modules/
+test-results/
+playwright-report/
+integration_lab/evidence/
+integration_lab/ledger-playwright.json
+.release-venv/
+.clean-install-venv/

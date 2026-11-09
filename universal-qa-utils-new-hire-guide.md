@@ -1,6 +1,6 @@
 # New-hire guide: universal-qa-utils
 
-Use this guide on your first day when you need to install and run [universal-qa-utils](https://pypi.org/project/universal-qa-utils/) from your own terminal. You do not need to copy the library source into your project. Install the published package and call its commands.
+Use this guide on your first day when you need to install [universal-qa-utils](https://pypi.org/project/universal-qa-utils/) and run it from the terminal, Robot Framework, Playwright, or a Tosca process step. You do not need to copy the library source into your project. Install the published package and call its commands.
 
 The production release is `0.2.0`. It requires Python 3.11 or newer.
 
@@ -12,6 +12,15 @@ The package does two different jobs:
 | Workbook comparison | `qa-excel-compare` | Cells matched by worksheet name and cell address |
 
 A passing reconciliation does not mean the workbooks are identical cell by cell. A passing workbook comparison does not mean the business keys match.
+
+You can run the same engine in four ways:
+
+| Way | Where the steps are | What you need beyond the pip package |
+| --- | --- | --- |
+| Terminal | Sections 5 and 6 | Nothing else |
+| Robot Framework | Section 8 | `pip install "universal-qa-utils[robot]==0.2.0"` |
+| Playwright | Section 9 | Node.js and the repository's Playwright client |
+| Tosca process step | Section 10 | The repository's PowerShell script and an approved Tosca process module |
 
 ## 1. Check Python
 
@@ -241,11 +250,12 @@ print(result["formula_evaluation"], result["charts_compared"], result["shapes_co
 | `shapes_compared` | `false` | Shapes were not compared. |
 | `password_decryption` | `not_supported` | An encrypted workbook is rejected. |
 
-## 8. Run the Robot Framework keywords
+## 8. Run it from Robot Framework
 
-Install the Robot extra from step 3, then list the keywords that ship inside the package:
+Robot Framework keywords ship inside the Python package. Install the extra, then confirm the keywords are visible:
 
 ```bash
+python -m pip install "universal-qa-utils[robot]==0.2.0"
 python -m robot.libdoc universal_utils.robot.ReconciliationLibrary list
 python -m robot.libdoc universal_utils.excel_compare.robot.ExcelCompareLibrary list
 ```
@@ -263,9 +273,56 @@ Workbook keywords:
 - `Get Excel Compare Summary`
 - `Verify Excel Compare Passed`
 
-The compare keywords return a result and do not fail the test when the files differ. The `Verify` keywords perform that check.
+`Compare Excel Files` and `Compare Excel Workbooks` return a result. They do not fail the Robot test when the files differ. `Verify Reconciliation Passed` and `Verify Excel Compare Passed` perform that check.
 
-Save this as `workbook_check.robot` and change the two paths:
+### Example: reconcile two lists by key
+
+Save this as `reconcile_check.robot`. Change the paths, sheet names, and column names to match your files.
+
+```robot
+*** Settings ***
+Library    universal_utils.robot.ReconciliationLibrary
+
+*** Variables ***
+${SOURCE_A}    ${CURDIR}/reference.xlsx
+${SOURCE_B}    ${CURDIR}/target.xlsx
+${FIELD_MAPPING}    {"Customer Name": "Name", "Amount": "Amount"}
+
+*** Test Cases ***
+Customer Lists Reconcile
+    ${result}=    Compare Excel Files
+    ...    ${SOURCE_A}
+    ...    ${SOURCE_B}
+    ...    sheet_a=Accounts
+    ...    sheet_b=Directory
+    ...    key_a=Customer ID
+    ...    key_b=Cust ID
+    ...    field_mapping=${FIELD_MAPPING}
+    ...    numeric_tolerance=0.01
+    Verify Reconciliation Passed    ${result}
+    ${summary}=    Get Reconciliation Summary
+    Should Be Equal    ${summary}[passed]    ${True}
+    Should Be Equal As Integers    ${summary}[exceptions]    0
+```
+
+Run it with the same Python environment that has the package installed:
+
+```bash
+python -m robot --outputdir robot-results reconcile_check.robot
+```
+
+Robot writes `output.xml`, `log.html`, and `report.html` in `robot-results`. A business mismatch fails only the `Verify Reconciliation Passed` step. A missing file fails the compare keyword itself because that is a technical error.
+
+You can also pass a JSON config file:
+
+```robot
+${result}=    Compare Excel Files    config=${CURDIR}/reconciliation.json
+Verify Reconciliation Passed    ${result}
+```
+
+### Example: compare workbooks by cell address
+
+Save this as `workbook_check.robot`. Both workbooks must use the same worksheet name.
 
 ```robot
 *** Settings ***
@@ -273,36 +330,211 @@ Library    universal_utils.excel_compare.robot.ExcelCompareLibrary
 
 *** Test Cases ***
 Workbooks Match For Enabled Checks
-    ${result}=    Compare Excel Workbooks    ${CURDIR}/reference.xlsx    ${CURDIR}/target.xlsx
+    ${result}=    Compare Excel Workbooks
+    ...    ${CURDIR}/reference.xlsx
+    ...    ${CURDIR}/target.xlsx
+    ...    ignore_case=true
+    ...    trim_whitespace=true
     Verify Excel Compare Passed    ${result}
-```
+    ${summary}=    Get Excel Compare Summary
+    Should Be Equal    ${summary}[formula_evaluation]    not_performed
+    Should Be Equal    ${summary}[charts_compared]    ${False}
+    Should Be Equal    ${summary}[shapes_compared]    ${False}
 
-Run it with the same interpreter that has the package installed:
+Formula Text Is Recorded Without Calculation
+    ${result}=    Compare Excel Workbooks
+    ...    ${CURDIR}/reference.xlsx
+    ...    ${CURDIR}/target.xlsx
+    ...    include_formulas=true
+    Should Be Equal    ${result}[formula_evaluation]    not_performed
+```
 
 ```bash
-python -m robot workbook_check.robot
+python -m robot --outputdir robot-results workbook_check.robot
 ```
 
-## 9. Clone the repository when you need the examples
+The repository also contains a ready-made synthetic suite. Clone the repository from section 11, activate the virtual environment, and run:
 
-The PyPI package does not include the example files. Clone the repository when you want the synthetic examples or the adapter scripts:
+```bash
+python -m robot --variable PYTHON:python examples/robot_example.robot
+```
+
+That suite creates two small workbooks and expects both reconciliation cases to pass.
+
+## 9. Run it from Playwright
+
+Playwright does not compare the workbooks itself. The client in this repository starts the installed `qa-utils` command and returns the JSON result to the Playwright test. A business mismatch resolves as a normal result with `passed: false`. A missing Python executable, a timeout, invalid JSON, or a technical failure rejects with `ReconciliationClientError`.
+
+The Playwright client is not inside the pip package. Clone the repository and install Node.js 22 or newer.
+
+```bash
+git clone https://github.com/gits5213/gits-utilities.git
+cd gits-utilities/universal-qa-utils
+npm install
+```
+
+Point `PYTHON` at the virtual environment from section 2:
+
+```bash
+# macOS or Linux
+export PYTHON="$HOME/qa-work/.venv/bin/python"
+
+# Windows PowerShell
+$env:PYTHON = "$env:USERPROFILE\qa-work\.venv\Scripts\python.exe"
+```
+
+Confirm that interpreter can import the package:
+
+```bash
+"$PYTHON" -c "import universal_utils; print(universal_utils.__version__)"
+```
+
+The expected output is `0.2.0`.
+
+Run the example that already lives in the repository. It creates synthetic CAM and MDG workbooks, calls `compareExcel`, and expects the reconciliation to pass:
+
+```bash
+npm run test:playwright
+```
+
+That command runs only `examples/playwright_example.spec.ts`.
+
+### Example: call your own two files from a Playwright test
+
+Save this as `examples/my_reconciliation.spec.ts` inside the cloned `universal-qa-utils` folder. Change the paths and column names.
+
+```typescript
+import path from "node:path";
+
+import { expect, test } from "@playwright/test";
+
+import { compareExcel } from "../adapters/playwright/reconciliation-client";
+
+test("reference and target reconcile by customer key", async () => {
+  const result = await compareExcel({
+    sourceA: path.resolve("reference.xlsx"),
+    sourceB: path.resolve("target.xlsx"),
+    sheetA: "Accounts",
+    sheetB: "Directory",
+    keyA: "Customer ID",
+    keyB: "Cust ID",
+    fieldMapping: {
+      "Customer Name": "Name",
+      Amount: "Amount",
+    },
+    numericTolerance: 0.01,
+    pythonPath: process.env.PYTHON,
+  });
+
+  expect(result.passed).toBe(true);
+  expect(result.exceptions).toBe(0);
+  expect(result.metadata.library_version).toBe("0.2.0");
+});
+```
+
+Run that one file:
+
+```bash
+npx playwright test examples/my_reconciliation.spec.ts
+```
+
+Use `expect(result.passed).toBe(false)` when the test is supposed to catch a known business difference. Do not treat `passed: false` as a broken Playwright installation. Use a thrown `ReconciliationClientError` for a missing file or a bad Python path.
+
+Workbook comparison does not have a Playwright client. Keep using `qa-excel-compare` or the Robot workbook keywords for cell-address comparison.
+
+## 10. Run it from Tosca
+
+This repository does not contain a Tosca module, and it does not compare workbooks through the Tricentis Tosca Excel Engine. Windows Tosca Commander has not been executed against this package. The steps below show how to point an already approved Tosca process module at the installed command. A passing PowerShell run on its own is not Tosca validation.
+
+On the Tosca host, install Python 3.11 and the production package:
+
+```text
+py -3.11 -m venv C:\qa-utils\venv
+C:\qa-utils\venv\Scripts\python.exe -m pip install "universal-qa-utils==0.2.0"
+C:\qa-utils\venv\Scripts\python.exe -m pip check
+C:\qa-utils\venv\Scripts\qa-utils.exe --help
+```
+
+`qa-utils --help` must succeed before you configure Tosca. The host also needs PowerShell 7 (`pwsh`) when you use the wrapper script.
+
+Copy `adapters/tosca/run_reconciliation.ps1` from the cloned repository to the host, for example `C:\qa-utils\repo\adapters\tosca\run_reconciliation.ps1`. Create a JSON config whose paths exist on that host:
+
+```json
+{
+  "source_type": "excel",
+  "source_a": "C:\\qa-data\\reference.xlsx",
+  "source_b": "C:\\qa-data\\target.xlsx",
+  "sheet_a": "Accounts",
+  "sheet_b": "Directory",
+  "key_a": "Customer ID",
+  "key_b": "Cust ID",
+  "field_mapping": {
+    "Customer Name": "Name",
+    "Amount": "Amount"
+  },
+  "numeric_tolerance": 0.01,
+  "generate_report": true,
+  "output_path": "C:\\qa-utils\\evidence\\reconciliation-report.xlsx"
+}
+```
+
+Save it as `C:\qa-utils\config\reconciliation.json`.
+
+In Tosca, use the process-execution module that the project has already approved. Point it at PowerShell 7:
+
+```powershell
+pwsh -NoProfile -File C:\qa-utils\repo\adapters\tosca\run_reconciliation.ps1 `
+  -Python C:\qa-utils\venv\Scripts\python.exe `
+  -Config C:\qa-utils\config\reconciliation.json `
+  -ResultFile C:\qa-utils\evidence\metrics.txt `
+  -ExitCodeMode defer
+```
+
+The same call without the script is:
+
+```text
+C:\qa-utils\venv\Scripts\qa-utils.exe --config C:\qa-utils\config\reconciliation.json --result-file C:\qa-utils\evidence\metrics.txt --exit-code-mode defer
+```
+
+Use `defer` when Tosca must read the result before it judges the business outcome. `strict` returns exit code `2` when the reconciliation has business differences. A process module that treats every non-zero code as a crash will stop before that business check.
+
+Record these three cases:
+
+| Case | Exit code | What Tosca should assert |
+| --- | --- | --- |
+| Completed reconciliation, defer mode | 0 | `metrics.txt` begins with `status=completed`. Then assert `passed` and the counts. A failed reconciliation can still be a passed Tosca test. |
+| Same reconciliation, strict mode | 2 | The counts stay the same. The exit code is the business failure. |
+| Missing workbook | 1 | `status=technical_failure`. Do not assert `passed`. |
+
+`metrics.txt` is a short key=value file. The full JSON is written to stdout. Attach the Tosca execution log, the stdout JSON, and `metrics.txt` to the run. Until those artifacts come from Tosca Commander on Windows, record the Tosca check as not validated.
+
+Cell-address comparison from Tosca uses the installed console script directly:
+
+```text
+C:\qa-utils\venv\Scripts\qa-excel-compare.exe --reference C:\qa-data\reference.xlsx --target C:\qa-data\target.xlsx --report-format text --output C:\qa-utils\evidence\workbook-comparison.txt --exit-code-mode defer
+```
+
+That command still does not calculate formulas, compare charts or shapes, or decrypt workbooks.
+
+## 11. Clone the repository when you need the examples
+
+The PyPI package does not include the example files, the Playwright client, or the Tosca PowerShell script. Clone the repository when you need them:
 
 ```bash
 git clone https://github.com/gits5213/gits-utilities.git
 cd gits-utilities/universal-qa-utils
 ```
 
-Run an example with the environment from step 2, not with a second copy of the source:
+Run an example with the environment from section 2, not with a second copy of the source:
 
 ```bash
 python examples/python_example.py
 python examples/cam_mdg_example.py
 python -m robot --variable PYTHON:python examples/robot_example.robot
+PYTHON="$HOME/qa-work/.venv/bin/python" npm run test:playwright
 ```
 
-The Playwright client and the PowerShell script live in this repository. They are not inside the installed wheel. Windows Tosca Commander has not been validated. A passing local command is not Tosca validation.
-
-## 10. Know the limits before you report a result
+## 12. Know the limits before you report a result
 
 - Reconciliation reads cached formula values. A formula Excel has never calculated can arrive empty.
 - Workbook comparison does not calculate formulas. It compares formula text only when you ask for it.
@@ -315,9 +547,10 @@ The Playwright client and the PowerShell script live in this repository. They ar
 - `passed` means the enabled checks found nothing to report. It does not mean the entire workbook is equivalent.
 - Reports contain the compared values. Do not commit reports or source workbooks that hold private data.
 
-## 11. Where to look next
+## 13. Where to look next
 
 - Package page: https://pypi.org/project/universal-qa-utils/0.2.0/
 - Source and issues: https://github.com/gits5213/gits-utilities
 - Workbook comparison details: `universal-qa-utils/docs/excel-compare.md`
+- Tosca process steps: `universal-qa-utils/docs/tosca-execution.md`
 - License: MIT, Copyright (c) 2026 Global iTech Solutions Inc.

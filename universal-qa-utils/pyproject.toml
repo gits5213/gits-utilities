@@ -28,6 +28,7 @@ robot = ["robotframework>=7.0"]
 [project.scripts]
 qa-utils = "universal_utils.cli:main"
 universal-qa-utils = "universal_utils.cli:main"
+qa-excel-compare = "universal_utils.excel_compare.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["universal_utils*"]

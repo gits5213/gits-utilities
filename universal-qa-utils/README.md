@@ -235,6 +235,12 @@ npm install
 PYTHON=.venv/bin/python npm run test:playwright
 ```
 
+## Workbook comparison
+
+`universal_utils.excel_compare` is an openpyxl-based workbook comparison. It compares cells by worksheet and address. It does not calculate formulas, compare charts or shapes, or decrypt workbooks. The command is `qa-excel-compare`. The Robot library is `universal_utils.excel_compare.robot.ExcelCompareLibrary`.
+
+This is separate from `qa-utils` and from `Compare Excel Files`. The supported behavior, the result schema, and the limits are in [docs/excel-compare.md](docs/excel-compare.md).
+
 ## License
 
 Universal QA Utils is licensed under the MIT License.
@@ -245,7 +251,8 @@ See [LICENSE](LICENSE).
 
 ## Limits
 
-- Formula cells are read from Excel's cached values (`data_only=True`). A formula that Excel has not calculated comes through empty.
+- Reconciliation reads formula cells from Excel's cached values (`data_only=True`). A formula that Excel has not calculated comes through empty.
+- Workbook comparison does not use those cached values. It compares formula text only when requested, and it does not calculate formulas.
 - Merged cells are not expanded.
 - Numeric Excel cells cannot preserve leading zeros.
 - Comparison is in memory.

@@ -2,6 +2,18 @@
 
 All notable changes to `universal-qa-utils` are recorded here. The package version and `LIBRARY_VERSION` move together. Reconciliation behavior, the command-line contract, and the Robot Framework keywords are unchanged unless a release says otherwise.
 
+## 0.2.0 — unreleased
+
+openpyxl-based workbook comparison, implemented on `feature/excel-compare-0.2.0`. The package version in this working tree remains `0.1.1` so the in-progress maintenance metadata is unchanged. This feature has not been published.
+
+### Added
+
+- `compare_workbooks` compares one reference workbook with one or more targets by worksheet and cell address.
+- `qa-excel-compare` provides that comparison without changing `qa-utils`.
+- `ExcelCompareLibrary` adds Compare Excel Workbooks, Get Excel Compare Summary, and Verify Excel Compare Passed.
+- Formula text, formatting fingerprints, worksheet selection, image byte hashes, and a difference limit are optional.
+- Results state that formula calculation, charts, shapes, and password decryption are not performed.
+
 ## 0.1.1 — unreleased
 
 Maintenance release prepared on `development/v0.1.1`. It has not been published to PyPI and has no Git tag.

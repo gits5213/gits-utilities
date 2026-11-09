@@ -13,3 +13,7 @@ integration_lab/evidence/
 integration_lab/ledger-playwright.json
 .release-venv/
 .clean-install-venv/
+.env
+.env.*
+*.pem
+*.key

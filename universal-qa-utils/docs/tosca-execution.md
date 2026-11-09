@@ -2,11 +2,19 @@
 
 This repository does not contain a Tosca module, and the lab does not click through Tosca Commander. Run the steps below in the Tosca installation that will call the package. Use the process-execution module that installation already has approved. Do not add a module from this document.
 
-The package under test is the installed wheel, not a checkout of this folder. On the Tosca host:
+The package under test is the installed distribution, not a checkout of this folder. Production version 0.1.0 is on PyPI. On the Tosca host:
 
 ```text
-python -m pip install universal_qa_utils-0.1.0-py3-none-any.whl
+python -m pip install "universal-qa-utils==0.1.0"
 ```
+
+To validate a locally built wheel instead, install that file. Release candidate 0.2.0 is not on PyPI:
+
+```text
+python -m pip install C:\qa-utils\dist\universal_qa_utils-<version>-py3-none-any.whl
+```
+
+The Windows plan for 0.2.0 is [tosca-windows-validation.md](tosca-windows-validation.md). That plan has not been executed.
 
 Generate the shared fixture on a machine that has this repository, then copy that directory to the Tosca host:
 
@@ -70,4 +78,4 @@ Stdout of a completed run is one JSON object with those metrics. A technical fai
 2. For the defer case, assert the process return code is 0, then read `metrics.txt` with the file or buffer module already in that workspace. Assert the counts above. This case is a passed Tosca test case about a failed reconciliation.
 3. Repeat with `-ExitCodeMode strict`. Assert the return code is 2 and the counts are unchanged.
 4. Point `--config` at a JSON file whose workbooks are missing. Assert the return code is 1 and `status=technical_failure`. Do not assert `passed`.
-5. Attach the Tosca execution log, the stdout JSON, and `metrics.txt` to the run. Until those artifacts come from Tosca Commander, Tosca verification is not complete and the package is not ready to publish.
+5. Attach the Tosca execution log, the stdout JSON, and `metrics.txt` to the run. Until those artifacts come from Tosca Commander, Tosca verification is not complete. Version 0.1.0 was published with this limitation still pending.

@@ -8,19 +8,27 @@ The comparison engine and the Robot Framework library ship in the Python wheel. 
 pip install -e ".[dev]"
 ```
 
-Python 3.11 or newer is required. Install a built wheel, including its dependencies, with:
+Python 3.11 or newer is required. Version 0.1.0 is the production release:
 
 ```bash
-python -m pip install dist/universal_qa_utils-0.1.0-py3-none-any.whl
+python -m pip install "universal-qa-utils==0.1.0"
 ```
 
-Robot Framework is optional:
+Project page: https://pypi.org/project/universal-qa-utils/0.1.0/
+
+Version 0.2.0 is the release candidate. It is not on PyPI. Install a wheel built from this branch, including its dependencies, with:
 
 ```bash
-python -m pip install "dist/universal_qa_utils-0.1.0-py3-none-any.whl[robot]"
+python -m pip install dist/universal_qa_utils-0.2.0-py3-none-any.whl
 ```
 
-After the package is published, the same install is `python -m pip install universal-qa-utils`. It has not been uploaded to PyPI. Another project can then import the package without copying these files:
+Robot Framework is optional. It is not required for the comparison engine or the command-line interface:
+
+```bash
+python -m pip install "dist/universal_qa_utils-0.2.0-py3-none-any.whl[robot]"
+```
+
+Another project can import the installed package without copying these files:
 
 ```python
 from universal_utils.reconciliation import compare_excel
@@ -227,6 +235,12 @@ npm install
 PYTHON=.venv/bin/python npm run test:playwright
 ```
 
+## Workbook comparison
+
+`universal_utils.excel_compare` is an openpyxl-based workbook comparison. It compares cells by worksheet and address. It does not calculate formulas, compare charts or shapes, or decrypt workbooks. The command is `qa-excel-compare`. The Robot library is `universal_utils.excel_compare.robot.ExcelCompareLibrary`.
+
+This is separate from `qa-utils` and from `Compare Excel Files`. The supported behavior, the result schema, and the limits are in [docs/excel-compare.md](docs/excel-compare.md).
+
 ## License
 
 Universal QA Utils is licensed under the MIT License.
@@ -237,7 +251,8 @@ See [LICENSE](LICENSE).
 
 ## Limits
 
-- Formula cells are read from Excel's cached values (`data_only=True`). A formula that Excel has not calculated comes through empty.
+- Reconciliation reads formula cells from Excel's cached values (`data_only=True`). A formula that Excel has not calculated comes through empty.
+- Workbook comparison does not use those cached values. It compares formula text only when requested, and it does not calculate formulas.
 - Merged cells are not expanded.
 - Numeric Excel cells cannot preserve leading zeros.
 - Comparison is in memory.
